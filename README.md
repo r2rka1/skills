@@ -21,15 +21,23 @@ A curated collection of reusable skills for [Claude Code](https://docs.anthropic
 | **create-plan** | Create a structured implementation plan with task breakdown and dependencies |
 | **execute-plan** | Execute an existing plan step-by-step with progress tracking and validation |
 | **create-pr** | Commit changes, update CHANGELOG.md, and create a GitHub pull request |
+| **review-pr** | Review a PR as a senior developer, with optional GitHub comments and auto-fix |
 | **update-changelog** | Analyze git history and update CHANGELOG.md in Keep a Changelog format |
 | **create-readme** | Generate a README.md by analyzing project code and configuration |
 | **initialize-git** | Initialize a git repo with .gitignore and optional GitHub remote creation |
+
+### Code Quality
+
+| Skill | Description |
+|-------|-------------|
+| **refactor-code** | Analyze code for refactoring opportunities and apply targeted improvements |
 
 ### Skills Management
 
 | Skill | Description |
 |-------|-------------|
 | **setup-skills** | Install this skills collection into a project's `.claude/skills/` directory |
+| **update-skills** | Pull the latest skills from the main branch into a project's `.claude/skills/` |
 | **add-skill-to-repo** | Create a new versioned, shareable skill at the repository root level |
 | **create-skill** | Scaffold a new Claude Code skill with SKILL.md and supporting files |
 

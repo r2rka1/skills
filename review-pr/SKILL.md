@@ -1,0 +1,158 @@
+---
+name: review-pr
+description: Reviews the pull request from the current branch as a senior developer, checking for bugs, security issues, code quality, and best practices. Can optionally leave inline comments on the PR via GitHub and auto-fix discovered issues. Use when the user wants a code review on a PR.
+disable-model-invocation: true
+argument-hint: "[--comment] [--fix]"
+---
+
+# Review PR
+
+Acts as a senior developer performing a thorough code review of the pull request associated with the current branch. Provides structured feedback and can optionally post comments on GitHub and fix issues directly.
+
+## Usage
+
+```
+/review-pr
+/review-pr --comment
+/review-pr --fix
+/review-pr --comment --fix
+```
+
+### Parameters
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--comment` | off | Post inline review comments on the PR via `gh` |
+| `--fix` | off | Automatically fix issues found during review |
+
+If no flags are provided, the review is displayed locally only.
+
+## Workflow
+
+### 1. Identify the PR
+
+- [ ] Get the current branch name: `git branch --show-current`
+- [ ] Find the associated PR: `gh pr view --json number,title,body,baseRefName,headRefName,url`
+- [ ] If no PR exists for the current branch, inform the user and stop
+- [ ] Store the PR number, base branch, and URL
+
+### 2. Gather the Diff
+
+- [ ] Get the full diff against the base branch: `gh pr diff`
+- [ ] List all changed files: `gh pr diff --name-only`
+- [ ] Read each changed file in full to understand context beyond the diff
+
+### 3. Review the Code
+
+Analyze every changed file against these categories:
+
+| Category | What to Check |
+|----------|--------------|
+| **Bugs** | Logic errors, off-by-one, null/undefined access, race conditions, unhandled edge cases |
+| **Security** | Injection vulnerabilities (SQL, XSS, command), hardcoded secrets, insecure defaults, missing auth checks |
+| **Performance** | N+1 queries, unnecessary re-renders, missing indexes, large allocations in loops |
+| **Error handling** | Swallowed errors, missing try/catch, inconsistent error patterns, unhelpful error messages |
+| **Code quality** | Duplication, overly complex functions, poor naming, dead code, missing types |
+| **Best practices** | Framework misuse, anti-patterns, missing tests for new logic, breaking API contracts |
+
+### 4. Classify Findings
+
+Assign each finding a severity:
+
+| Severity | Meaning |
+|----------|---------|
+| **Blocker** | Must fix before merge — bugs, security vulnerabilities, data loss risks |
+| **Warning** | Should fix — performance issues, error handling gaps, code quality concerns |
+| **Suggestion** | Nice to have — style improvements, minor simplifications, optional optimizations |
+| **Praise** | Good patterns worth calling out — well-structured code, good test coverage, clean abstractions |
+
+### 5. Present Review Summary
+
+Display the review locally in this format:
+
+```markdown
+## PR Review: <PR title> (#<number>)
+
+**Branch:** <head> → <base>
+**Files changed:** <count>
+**Verdict:** <Approve / Request Changes / Comment>
+
+### Blockers
+- **<file>:<line>** — <description>
+
+### Warnings
+- **<file>:<line>** — <description>
+
+### Suggestions
+- **<file>:<line>** — <description>
+
+### Praise
+- **<file>:<line>** — <description>
+
+### Summary
+<1-2 paragraph overall assessment>
+```
+
+### 6. Post Comments (if `--comment`)
+
+If the `--comment` flag is provided:
+
+- [ ] Submit a PR review with inline comments using `gh`:
+
+```bash
+# Submit the overall review
+gh pr review <number> --comment --body "<overall summary>"
+```
+
+- [ ] For each finding with a specific file and line, post an inline comment:
+
+```bash
+gh api repos/{owner}/{repo}/pulls/<number>/comments \
+  -f body="<comment>" \
+  -f path="<file>" \
+  -F line=<line> \
+  -f side="RIGHT" \
+  -f commit_id="$(gh pr view <number> --json headRefOid -q .headRefOid)"
+```
+
+- [ ] Include severity in comment prefix: `**🔴 Blocker:**`, `**🟡 Warning:**`, `**🟢 Suggestion:**`, `**👏 Praise:**`
+
+### 7. Fix Issues (if `--fix`)
+
+If the `--fix` flag is provided:
+
+- [ ] Ask the user which findings to fix (default: all Blockers and Warnings)
+- [ ] For each approved fix:
+  - Make the smallest possible change that addresses the issue
+  - Preserve existing behavior and code style
+  - Do not change unrelated code
+- [ ] After all fixes are applied:
+  - Run the project's test suite if available
+  - If tests fail, revert the failing change and report it
+  - Show a summary of changes made
+- [ ] Do NOT commit or push fixes automatically — leave that to the user or `/create-pr`
+
+### 8. Final Report
+
+Display:
+- Total findings by severity
+- If `--comment`: confirm comments were posted with a link to the PR
+- If `--fix`: list files modified and changes made
+- Overall recommendation (Approve / Request Changes)
+
+## Directory Structure
+
+- `resources/` — persistent output and data files generated by this skill
+- `scripts/` — reusable scripts for this skill's operations
+
+## Script Management
+
+When performing an operation that can be scripted:
+1. Check `scripts/` for an existing script that handles this operation
+2. If a script exists, execute it instead of doing the work inline
+3. If no script exists and the operation is reusable, create one in `scripts/`, make it executable, then execute it
+4. Reference any new scripts in this SKILL.md under "Available Scripts"
+
+## Available Scripts
+
+_No scripts yet. Scripts will be added here as they are created._

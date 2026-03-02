@@ -31,6 +31,7 @@ A curated collection of reusable skills for [Claude Code](https://docs.anthropic
 | Skill | Description |
 |-------|-------------|
 | **refactor-code** | Analyze code for refactoring opportunities and apply targeted improvements |
+| **check-for-security-issues** | Scan changed files for security vulnerabilities, secrets, and insecure patterns |
 
 ### Skills Management
 

@@ -1,12 +1,12 @@
 ---
 name: setup-project
-description: Scaffolds a new project directory with git init, clones the skills repository into a .claude folder, and generates a .gitignore excluding common files and the .claude directory. Triggered when the user wants to create, bootstrap, or set up a new project.
+description: Scaffolds a new project directory with git init, clones the skills repository into .claude/skills/, and generates a .gitignore excluding common files and the .claude directory. Triggered when the user wants to create, bootstrap, or set up a new project.
 argument-hint: "<project-name>"
 ---
 
 # Setup Project
 
-Creates a new project folder with the provided name, initializes git, clones the skills repo into `.claude/`, and adds a comprehensive `.gitignore`.
+Creates a new project folder with the provided name, initializes git, clones the skills repo into `.claude/skills/`, and adds a comprehensive `.gitignore`.
 
 ## Usage
 
@@ -31,9 +31,11 @@ Creates a new project folder with the provided name, initializes git, clones the
 ```
 <project-name>/
 ├── .git/              # Initialized git repo
-├── .claude/           # Cloned from git@github.com:r2rka1/skills.git
-│   ├── skills/
-│   └── ...
+├── .claude/
+│   └── skills/        # Cloned from git@github.com:r2rka1/skills.git
+│       ├── setup-project/
+│       ├── create-plan/
+│       └── ...
 └── .gitignore         # Excludes node_modules, .env, .claude/, IDE files, etc.
 ```
 
@@ -52,4 +54,4 @@ When performing an operation that can be scripted:
 
 ## Available Scripts
 
-- `scripts/setup.sh <project-name>` — Creates the project directory, initializes git, clones skills into `.claude/`, and writes `.gitignore`
+- `scripts/setup.sh <project-name>` — Creates the project directory, initializes git, clones skills into `.claude/skills/`, and writes `.gitignore`

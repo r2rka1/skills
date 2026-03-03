@@ -24,9 +24,10 @@ cd "$PROJECT_NAME"
 # Initialize git repo
 git init
 
-# Clone skills into .claude
-echo "Cloning skills repository into .claude..."
-git clone git@github.com:r2rka1/skills.git .claude
+# Clone skills into .claude/skills
+echo "Cloning skills repository into .claude/skills..."
+mkdir -p .claude
+git clone git@github.com:r2rka1/skills.git .claude/skills
 
 # Create .gitignore
 cat > .gitignore << 'GITIGNORE'
@@ -87,5 +88,5 @@ GITIGNORE
 echo ""
 echo "Project '$PROJECT_NAME' created successfully!"
 echo "  - Git repository initialized"
-echo "  - Skills cloned into .claude/"
+echo "  - Skills cloned into .claude/skills/"
 echo "  - .gitignore configured"

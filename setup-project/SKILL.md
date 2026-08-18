@@ -1,6 +1,7 @@
 ---
 name: setup-project
 description: Scaffolds a new project directory with git init, clones the skills repository into .claude/skills/, and generates a .gitignore excluding common files and the .claude directory. Triggered when the user wants to create, bootstrap, or set up a new project.
+disable-model-invocation: true
 argument-hint: "<project-name>"
 ---
 

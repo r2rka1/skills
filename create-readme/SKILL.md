@@ -2,6 +2,7 @@
 name: create-readme
 description: Generates a comprehensive README.md file by analyzing the project's code, structure, dependencies, and configuration. Use when a project needs a README or when the existing README is outdated.
 disable-model-invocation: true
+argument-hint: "[project path]"
 ---
 
 # Create README

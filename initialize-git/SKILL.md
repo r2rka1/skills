@@ -2,6 +2,7 @@
 name: initialize-git
 description: Initializes a git repository in the current project by creating a .gitignore with common defaults (including .claude/), running git init, and creating a GitHub repository using gh CLI. Use when setting up version control for a new project.
 disable-model-invocation: true
+argument-hint: "[repo name]"
 ---
 
 # Initialize Git

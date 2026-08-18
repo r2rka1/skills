@@ -38,20 +38,29 @@ Clone the shared skills repo into a temporary location and copy skills into the 
 ```bash
 # Clone to temp directory
 TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
 git clone --depth 1 https://github.com/r2rka1/skills.git "$TEMP_DIR"
 
 # Copy each skill directory (excluding repo-level files)
 for skill_dir in "$TEMP_DIR"/*/; do
   skill_name=$(basename "$skill_dir")
   # Skip hidden directories and non-skill directories
-  if [[ -f "$skill_dir/SKILL.md" ]]; then
-    cp -r "$skill_dir" "<target-project>/.claude/skills/$skill_name"
-  fi
-done
+  [[ -f "$skill_dir/SKILL.md" ]] || continue
 
-# Clean up
-rm -rf "$TEMP_DIR"
+  dest="<target-project>/.claude/skills/$skill_name"
+  if [[ -e "$dest" ]]; then
+    # Already present -- collect it and ask the user before touching it.
+    echo "EXISTS: $skill_name"
+    continue
+  fi
+  cp -R "$skill_dir" "$dest"
+done
 ```
+
+Collect every skill reported as `EXISTS`, then ask the user in a single
+question whether to overwrite them, skip them, or decide per skill. Only copy
+over an existing directory after they confirm — an existing skill may carry
+local edits or user data under `resources/`.
 
 ### 4. Verify and Report
 

@@ -30,21 +30,33 @@ Clone the skills repository at the latest main branch and update local skills:
 ```bash
 # Clone to temp directory
 TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
 git clone --depth 1 --branch main https://github.com/r2rka1/skills.git "$TEMP_DIR"
 
-# Update each skill from the repository
+# Update each skill, preserving locally generated resources/
 for skill_dir in "$TEMP_DIR"/*/; do
   skill_name=$(basename "$skill_dir")
-  if [[ -f "$skill_dir/SKILL.md" ]]; then
-    # Remove old version and copy new one
-    rm -rf ".claude/skills/$skill_name"
-    cp -r "$skill_dir" ".claude/skills/$skill_name"
+  [[ -f "$skill_dir/SKILL.md" ]] || continue
+
+  dest=".claude/skills/$skill_name"
+  mkdir -p "$dest"
+
+  # Overwrite tracked skill content (SKILL.md, scripts/, docs) but never
+  # delete the destination wholesale -- resources/ holds user data.
+  rsync -a --exclude 'resources/' "$skill_dir" "$dest/"
+
+  # Add any NEW resource files from the repo without clobbering existing ones.
+  if [[ -d "$skill_dir/resources" ]]; then
+    mkdir -p "$dest/resources"
+    rsync -a --ignore-existing "$skill_dir/resources/" "$dest/resources/"
   fi
 done
-
-# Clean up
-rm -rf "$TEMP_DIR"
 ```
+
+**Never use `rm -rf ".claude/skills/$skill_name"` here.** Skills such as
+`create-plan`, `execute-plan`, and `research` persist user-generated work under
+`resources/` — plans in progress, accumulated research findings. Deleting the
+skill directory destroys that work irrecoverably.
 
 ### 3. Preserve Local Skills
 
@@ -62,7 +74,8 @@ rm -rf "$TEMP_DIR"
 
 - The skills repository is: `https://github.com/r2rka1/skills`
 - Always pulls from the `main` branch to ensure stable versions
-- Local `resources/` content inside skills is overwritten — these directories are expected to be empty in the repository
+- Local `resources/` content is **preserved**. Files the repository ships into `resources/` are added only if they do not already exist locally; existing files are never overwritten
+- `rsync` is required. If unavailable, fall back to `cp -R` of the individual entries, still skipping `resources/`
 
 ## Directory Structure
 

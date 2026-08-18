@@ -1,6 +1,7 @@
 ---
 name: create-pr
 description: Commits staged and unstaged changes with a descriptive message, updates CHANGELOG.md, updates README.md if needed, and creates a GitHub pull request. Use after completing a feature, fix, or any set of changes ready for review.
+disable-model-invocation: true
 argument-hint: "[PR title or description]"
 ---
 
@@ -63,7 +64,24 @@ Check if the changes warrant a README update:
 
 Only update README if the changes are user-facing and significant. Do NOT update for internal refactors, bug fixes, or minor changes.
 
-### 5. Commit Changes
+### 5. Create a Branch (If on Main or Master)
+
+Do this **before** committing. Committing while `main` is checked out advances
+the local `main` ref; branching afterwards leaves that commit sitting on `main`
+as well, which then diverges from `origin/main` and has to be reset by hand.
+
+```bash
+branch=$(git branch --show-current)
+if [[ "$branch" == "main" || "$branch" == "master" ]]; then
+  git checkout -b <branch-name>
+fi
+```
+
+Branch naming: `feature/<short-description>`, `fix/<short-description>`, or `chore/<short-description>`.
+
+If already on a non-main branch, stay on it.
+
+### 6. Commit Changes
 
 - [ ] Stage all relevant files: `git add <specific-files>` (prefer specific files over `git add -A`)
 - [ ] Include the updated CHANGELOG.md and README.md (if changed) in the commit
@@ -73,22 +91,13 @@ Only update README if the changes are user-facing and significant. Do NOT update
 git commit -m "$(cat <<'EOF'
 <commit message>
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 EOF
 )"
 ```
 
-### 6. Create a Branch (If on Main)
-
-If currently on `main`, create a feature branch before pushing:
-
-```bash
-git checkout -b <branch-name>
-```
-
-Branch naming: `feature/<short-description>`, `fix/<short-description>`, or `chore/<short-description>`.
-
-If already on a non-main branch, stay on it.
+Use the model identity configured for the session rather than a hardcoded
+version string, so the trailer does not go stale as models change.
 
 ### 7. Push and Create PR
 

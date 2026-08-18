@@ -27,7 +27,11 @@ git init
 # Clone skills into .claude/skills
 echo "Cloning skills repository into .claude/skills..."
 mkdir -p .claude
-git clone git@github.com:r2rka1/skills.git .claude/skills
+# Shallow clone over HTTPS so this works without SSH keys configured.
+git clone --depth 1 https://github.com/r2rka1/skills.git .claude/skills
+# Drop the clone's git metadata: a nested repo inside the new project confuses
+# `git status`, blocks `git add`, and pins the skills to one commit forever.
+rm -rf .claude/skills/.git
 
 # Create .gitignore
 cat > .gitignore << 'GITIGNORE'

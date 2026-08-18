@@ -35,8 +35,9 @@ mkdir -p <project-name>
 # Create the .claude directory
 mkdir -p <project-name>/.claude
 
-# Clone the skills repo directly into .claude/skills
-git clone https://github.com/r2rka1/skills.git <project-name>/.claude/skills
+# Clone the skills repo directly into .claude/skills.
+# --depth 1 avoids pulling full history that is discarded on the next line.
+git clone --depth 1 https://github.com/r2rka1/skills.git <project-name>/.claude/skills
 
 # Remove the .git directory so it's not a nested repo
 rm -rf <project-name>/.claude/skills/.git

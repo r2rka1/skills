@@ -7,7 +7,15 @@ argument-hint: "<skill-name>"
 
 # Add Skill to Repository
 
-Creates a new skill at the **repository root** of the skills repo (`/home/r2rka/projects/skills/<skill-name>/`), making it a versioned, shareable skill.
+Creates a new skill at the **repository root** of the skills repo, making it a versioned, shareable skill.
+
+The repo root is resolved at runtime — never hardcode it:
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel)
+```
+
+Run this command from inside a clone of the skills repo. If `git rev-parse` fails, or the resolved root has no `SKILL.md` directories in it, stop and ask the user for the path to their skills clone.
 
 This differs from `/create-skill` which creates skills under `.claude/skills/` for local use. Skills created by this command live in the repo root and are tracked by git.
 
@@ -24,7 +32,8 @@ This differs from `/create-skill` which creates skills under `.claude/skills/` f
 - [ ] Ensure a skill name was provided as `$ARGUMENTS[0]`. If not, ask the user.
 - [ ] Validate the name: lowercase letters, numbers, and hyphens only (max 64 chars).
 - [ ] No reserved words ("anthropic", "claude").
-- [ ] Confirm `/home/r2rka/projects/skills/$ARGUMENTS[0]` does not already exist.
+- [ ] Resolve `REPO_ROOT=$(git rev-parse --show-toplevel)` and confirm it looks like the skills repo.
+- [ ] Confirm `$REPO_ROOT/$ARGUMENTS[0]` does not already exist.
 
 ### 2. Ask the User
 
@@ -37,13 +46,14 @@ Default: user-invocable only.
 ### 3. Create Directory Structure
 
 ```bash
-mkdir -p /home/r2rka/projects/skills/$ARGUMENTS[0]/scripts
-mkdir -p /home/r2rka/projects/skills/$ARGUMENTS[0]/resources
+REPO_ROOT=$(git rev-parse --show-toplevel)
+mkdir -p "$REPO_ROOT/$ARGUMENTS[0]/scripts"
+mkdir -p "$REPO_ROOT/$ARGUMENTS[0]/resources"
 ```
 
 ### 4. Generate SKILL.md
 
-Create `/home/r2rka/projects/skills/$ARGUMENTS[0]/SKILL.md` with:
+Create `$REPO_ROOT/$ARGUMENTS[0]/SKILL.md` with:
 
 **Frontmatter:**
 
@@ -106,7 +116,7 @@ Available optional fields:
 - [ ] Confirm the directory structure exists (`scripts/`, `resources/`)
 - [ ] Remind the user to copy the skill to `.claude/skills/` if they want it active locally:
   ```bash
-  cp -r /home/r2rka/projects/skills/<skill-name> /home/r2rka/projects/.claude/skills/
+  cp -r "$REPO_ROOT/<skill-name>" <your-project>/.claude/skills/
   ```
 - [ ] Note the skill can be committed and pushed to the repo for sharing
 
